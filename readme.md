@@ -1,6 +1,8 @@
 ## EzNtp
 
-简单的NTP手动同步软件，使用C++和FLTK编写。
+十分简单的Windows手动校时软件，使用C++,socket,Win32 API,NTP协议和FLTK编写。
+
+![截图](screenshot.png)
 
 编译环境: Mingw GCC 11.2.0 Windows 10 x64
 
@@ -10,7 +12,7 @@
 
 ## FLTK版
 
-自行更换FLTK地址
+以FLTK库的地址是`/c/some/fltk`为例:
 
     g++ -I/c/some/fltk/include -I/c/some/fltk/include/FL/images -mwindows -DWIN32 -DUSE_OPENGL32 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -o 'main' './main.cpp' -mwindows /c/some/fltk/lib/libfltk.a -ldl -lole32 -luuid -lcomctl32 -lwsock32
 
