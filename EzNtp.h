@@ -1,5 +1,4 @@
-// EzNtp.cpp: 定义应用程序的入口点。
-//
+// 许可: AGPL-3.0
 
 #include <errhandlingapi.h>
 #include <exception>
@@ -13,7 +12,7 @@
 #include <sys/timeb.h>
 #include <winsock.h>
 
-#pragma comment(lib, "ws2_32.lib") //加载 ws2_32.dll
+#pragma comment(lib, "ws2_32.lib") //加载 ws2_32.dll // 用于msvc
 
 constexpr auto NTP_TIMESTAMP_DELTA = 2208988800ull;
 
@@ -27,7 +26,6 @@ using namespace std;
 
 #define dbg(x) cout << #x << " = " << x << endl;
 #define show_line() cout << __FILE__ << ":" << __LINE__ << endl;
-
 
 /*
                +-----------+------------+-----------------------+
@@ -53,35 +51,30 @@ using namespace std;
 */
 typedef struct {
 
-  uint8_t leap_version_mode; // Eight bits. li, vn, and mode.
-                             // li.   Two bits.   Leap indicator.
-                             // vn.   Three bits. Version number of the
-                             // protocol. mode. Three bits. Client will pick
-                             // mode 3 for client.
+  uint8_t leap_version_mode;
 
-  uint8_t stratum; // Eight bits. Stratum level of the local clock.
-  uint8_t poll;    // Eight bits. Maximum interval between successive messages.
-  uint8_t precision; // Eight bits. Precision of the local clock.
+  uint8_t stratum;
+  uint8_t poll;
+  uint8_t precision;
 
-  uint32_t rootDelay; // 32 bits. Total round trip delay time.
-  uint32_t
-      rootDispersion; // 32 bits. Max error aloud from primary clock source.
-  uint32_t refId;     // 32 bits. Reference clock identifier.
+  uint32_t rootDelay;
+  uint32_t rootDispersion;
+  uint32_t refId;
 
-  uint32_t refTimeSec;  // 32 bits. Reference time-stamp seconds.
-  uint32_t refTimeFrac; // 32 bits. Reference time-stamp fraction of a second.
+  uint32_t refTimeSec;
+  uint32_t refTimeFrac;
 
-  uint32_t orgSec;  // 32 bits. Originate time-stamp seconds.
-  uint32_t orgFrac; // 32 bits. Originate time-stamp fraction of a second.
+  uint32_t orgSec;
+  uint32_t orgFrac;
 
-  uint32_t recSec;  // 32 bits. Received time-stamp seconds.
-  uint32_t recFrac; // 32 bits. Received time-stamp fraction of a second.
+  uint32_t recSec;
+  uint32_t recFrac;
 
-  uint32_t xmtSec;  // 32 bits and the most important field the client cares
-                    // about. Transmit time-stamp seconds.
-  uint32_t xmtFrac; // 32 bits. Transmit time-stamp fraction of a second.
+  uint32_t xmtSec;
 
-} NtpPacket; // Total: 384 bits or 48 bytes.
+  uint32_t xmtFrac;
+
+} NtpPacket;
 
 inline int64_t calculateTimeOffset(int64_t c1, int64_t s2, int64_t s3,
                                    int64_t c4) {
@@ -100,11 +93,8 @@ inline timeb ntp2timeb(uint32_t sec, uint32_t frac) {
 }
 
 inline void printTimeB(const timeb &time) {
-  if(ctime(&time.time) == NULL) {
-    cout << "Wrong time! " 
-    << time.time << " "
-    << time.millitm 
-    << endl;
+  if (ctime(&time.time) == NULL) {
+    cout << "Wrong time! " << time.time << " " << time.millitm << endl;
     throw exception();
   }
   string timeSecString = ctime(&time.time);
@@ -112,13 +102,14 @@ inline void printTimeB(const timeb &time) {
        << ", Milsec:" << time.millitm << endl;
 }
 
-string timebToString(const timeb time)
-{
-  tm* plocal = localtime(&time.time);
+string timebToString(const timeb time) {
+  tm *plocal = localtime(&time.time);
   assert(plocal);
 
   char str[256] = "";
-  sprintf(str, "%4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", plocal->tm_year+1900, plocal->tm_mon + 1, plocal->tm_mday, plocal->tm_hour, plocal->tm_min, plocal->tm_sec);
+  sprintf(str, "%4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", plocal->tm_year + 1900,
+          plocal->tm_mon + 1, plocal->tm_mday, plocal->tm_hour, plocal->tm_min,
+          plocal->tm_sec);
   cout << str << endl;
   string result = str;
   return result;
@@ -159,25 +150,18 @@ public:
     memset(&packet, 0, sizeof(NtpPacket));
     packet.leap_version_mode = 0x1b;
 
-    assert(
-      connect(sock, (SOCKADDR *)&socketAddress, sizeof(SOCKADDR))
-      != SOCKET_ERROR
-    );
+    assert(connect(sock, (SOCKADDR *)&socketAddress, sizeof(SOCKADDR)) !=
+           SOCKET_ERROR);
 
     // --------时间敏感区开始-------
 
     timeb org;
     ftime(&org);
 
-    assert(
-      send(sock, (const char *)&packet, sizeof(packet), 0)
-      != SOCKET_ERROR
-    );
+    assert(send(sock, (const char *)&packet, sizeof(packet), 0) !=
+           SOCKET_ERROR);
 
-    assert(
-      recv(sock, (char *)&packet, sizeof(packet), 0)
-      != SOCKET_ERROR
-    );
+    assert(recv(sock, (char *)&packet, sizeof(packet), 0) != SOCKET_ERROR);
 
     timeb dst;
     ftime(&dst);
