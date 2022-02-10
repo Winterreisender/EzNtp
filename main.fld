@@ -1,0 +1,43 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0308
+header_name {.h}
+code_name {.cpp}
+decl {\#include <iostream>} {private local
+}
+
+Function {bt_callback(Fl_Widget*, void* userdata)} {open return_type {static void}
+} {
+  code {if(userdata == "test")
+	std::cout << "Testing" << std::endl;
+else if (userdata == "close")
+	exit(0);} {}
+}
+
+Function {} {open
+} {
+  Fl_Window window_main {
+    label EzTimeSync open selected
+    xywh {447 310 282 140} type Double align 80 visible
+  } {
+    Fl_Button btnRefreshTime {
+      label {刷新}
+      user_data {"test"}
+      callback bt_callback
+      xywh {35 95 100 25}
+    }
+    Fl_Output serverTimeOutput {
+      label {服务器时间}
+      xywh {85 22 170 23}
+    }
+    Fl_Output sysTimeOutput {
+      label {系统时间}
+      xywh {85 57 170 23}
+    }
+    Fl_Button btnSyncTime {
+      label {同步}
+      user_data {"test"}
+      callback bt_callback
+      xywh {155 95 100 25}
+    }
+  }
+}
