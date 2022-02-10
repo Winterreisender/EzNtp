@@ -110,7 +110,6 @@ string timebToString(const timeb time) {
   sprintf(str, "%4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", plocal->tm_year + 1900,
           plocal->tm_mon + 1, plocal->tm_mday, plocal->tm_hour, plocal->tm_min,
           plocal->tm_sec);
-  cout << str << endl;
   string result = str;
   return result;
 }

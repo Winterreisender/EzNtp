@@ -6,9 +6,6 @@
 
 using namespace std;
 
-#define show_line() cout << __FILE__ << ":" << __LINE__ << endl;
-
-
 Fl_Double_Window *window_main=(Fl_Double_Window *)0;
 Fl_Button *btnRefreshTime=(Fl_Button *)0;
 Fl_Input *serverTimeOutput=(Fl_Input *)0;
@@ -19,17 +16,12 @@ Fl_Button *btnSyncTime=(Fl_Button *)0;
 void btnRefreshTimeClicked(Fl_Widget* _, void* __)
 {
   auto ezNtp = EzNtp();
-  show_line();
   ezNtp.initSocket();
-  show_line();
   timeb ntpTime = ezNtp.getNtpTime();
-  show_line();
   serverTimeOutput->value(Utils::timebToString(ntpTime).c_str());
-  show_line();
   ezNtp.closeSocket();
 
   timeb sysTimeb;
-  show_line();
   ftime(&sysTimeb);
   sysTimeOutput->value(Utils::timebToString(sysTimeb).c_str());
 }
@@ -45,6 +37,8 @@ void btnSyncTimeClicked(Fl_Widget* _, void* __)
 
 
 int fltk_main(int argc, char **argv) {
+  Fl::scheme("gtk+");
+
   window_main = new Fl_Double_Window(282, 140, "EzTimeSync");
   window_main->align(Fl_Align(FL_ALIGN_CLIP|FL_ALIGN_INSIDE));
   btnRefreshTime = new Fl_Button(35, 95, 100, 25, "\345\210\267\346\226\260");
