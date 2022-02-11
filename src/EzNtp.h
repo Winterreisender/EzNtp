@@ -105,9 +105,9 @@ string timebToString(const timeb time) {
   assert(plocal);
 
   char str[256] = "";
-  sprintf(str, "%4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d", plocal->tm_year + 1900,
+  sprintf(str, "%4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d:%3.3d", plocal->tm_year + 1900,
           plocal->tm_mon + 1, plocal->tm_mday, plocal->tm_hour, plocal->tm_min,
-          plocal->tm_sec);
+          plocal->tm_sec,time.millitm);
   string result = str;
   return result;
 }
@@ -126,20 +126,33 @@ private:
   sockaddr_in socketAddress;
 
 public:
-  string ntpServerIP = "203.107.6.88";
+  string ntpServerIP = "114.118.7.163"; //国家授时中心
   int ntpServerPort = 123;
 
-  void initSocket() {
-    WSADATA wsaData;
-    assert(WSAStartup(MAKEWORD(2, 2), &wsaData) == 0);
-    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    assert(sock);
+    // 设置NTP域名
+    /*
+    auto& setNtpServer(string domain) {
+        dbg(domain);
+        hostent* phost = gethostbyname(domain.c_str());  //gethostbyname function has been deprecated
+        assert(phost != NULL);
+        ntpServerIP = phost->h_name;
+        return *this;
+    }
+    */
 
-    memset(&socketAddress, 0, sizeof(socketAddress));
-    socketAddress.sin_family = AF_INET;
-    socketAddress.sin_addr.s_addr = inet_addr(ntpServerIP.c_str());
-    socketAddress.sin_port = htons(ntpServerPort);
-  }
+    void initSocket() {
+        dbg(ntpServerIP);
+
+        WSADATA wsaData;
+        assert(WSAStartup(MAKEWORD(2, 2), &wsaData) == 0);
+        sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        assert(sock);
+
+        memset(&socketAddress, 0, sizeof(socketAddress));
+        socketAddress.sin_family = AF_INET;
+        socketAddress.sin_addr.s_addr = inet_addr(ntpServerIP.c_str());
+        socketAddress.sin_port = htons(ntpServerPort);
+    }
 
   // milsecs
   int64_t getNtpOffset() {
@@ -198,39 +211,39 @@ public:
     return localTime;
   }
 
-  auto syncTime() { return applyOffset(getNtpOffset()); }
+    auto syncTime() { return applyOffset(getNtpOffset()); }
 
-  // retunt 0 if success or Win32 Error Code
-  static DWORD applyOffset(const int64_t offset) {
-    time_t offsetSec = offset / 1000;
-    short int offsetMilsec = offset % 1000;
-    timeb localTime;
+    // retunt 0 if success or Win32 Error Code
+    static DWORD applyOffset(const int64_t offset) {
+        time_t offsetSec = offset / 1000;
+        short int offsetMilsec = offset % 1000;
+        timeb localTime;
 
-    //---时间敏感区开始---
-    ftime(&localTime);
-    localTime.time += offsetSec;
-    localTime.millitm += offsetMilsec;
-    localTime.time += localTime.millitm / 1000;
-    localTime.millitm %= 1000;
+        //---时间敏感区开始---
+        ftime(&localTime);
+        localTime.time += offsetSec;
+        localTime.millitm += offsetMilsec;
+        localTime.time += localTime.millitm / 1000;
+        localTime.millitm %= 1000;
 
-    tm t = *localtime(&localTime.time);
-    SYSTEMTIME newSysTime;
-    newSysTime.wYear = 1900 + t.tm_year, newSysTime.wMonth = 1 + t.tm_mon,
-    newSysTime.wDayOfWeek = t.tm_wday, newSysTime.wDay = t.tm_mday,
-    newSysTime.wHour = t.tm_hour, newSysTime.wMinute = t.tm_min,
-    newSysTime.wSecond = t.tm_sec,
-    newSysTime.wMilliseconds = (int)localTime.millitm;
+        tm t = *localtime(&localTime.time);
+        SYSTEMTIME newSysTime;
+        newSysTime.wYear = 1900 + t.tm_year, newSysTime.wMonth = 1 + t.tm_mon,
+        newSysTime.wDayOfWeek = t.tm_wday, newSysTime.wDay = t.tm_mday,
+        newSysTime.wHour = t.tm_hour, newSysTime.wMinute = t.tm_min,
+        newSysTime.wSecond = t.tm_sec,
+        newSysTime.wMilliseconds = (int)localTime.millitm;
 
-    bool isSetSysTimeSuccess = SetLocalTime(&newSysTime);
-    //------时间敏感区结束--------
+        bool isSetSysTimeSuccess = SetLocalTime(&newSysTime);
+        //------时间敏感区结束--------
 
-    return isSetSysTimeSuccess ? 0 : GetLastError();
-  }
+        return isSetSysTimeSuccess ? 0 : GetLastError();
+    }
 
-  void closeSocket() {
-    closesocket(sock);
-    WSACleanup();
-  }
+    void closeSocket() {
+        closesocket(sock);
+        WSACleanup();
+    }
 };
 
 /*
