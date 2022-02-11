@@ -1,10 +1,8 @@
 // 许可: AGPL-3.0
+#pragma once
 
-#include <errhandlingapi.h>
-#include <exception>
 #include <iostream>
-#include <minwindef.h>
-#include <psdk_inc/_socket_types.h>
+#include <exception>
 #include <windows.h>
 
 #include <assert.h>
@@ -12,7 +10,7 @@
 #include <sys/timeb.h>
 #include <winsock.h>
 
-#pragma comment(lib, "ws2_32.lib") //加载 ws2_32.dll // 用于msvc
+// #pragma comment(lib, "ws2_32.lib") //加载 ws2_32.dll 用于msvc
 
 constexpr auto NTP_TIMESTAMP_DELTA = 2208988800ull;
 
@@ -223,7 +221,6 @@ public:
     newSysTime.wSecond = t.tm_sec,
     newSysTime.wMilliseconds = (int)localTime.millitm;
 
-    LPSYSTEMTIME pNewSysTime = &newSysTime;
     bool isSetSysTimeSuccess = SetLocalTime(&newSysTime);
     //------时间敏感区结束--------
 
