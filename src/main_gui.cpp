@@ -88,9 +88,11 @@ void btnSyncTimeClicked(Fl_Widget* _, void* __)
 
 void fltk_main(int argc, char** argv)
 {
-
-    window_main = new Fl_Double_Window(280, 140, "EzTimeSync");
+    constexpr int WINDOW_WIDTH = 280, WINDOW_HEIGHT = 140;
+    
+    window_main = new Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "EzTimeSync");
     window_main->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));
+    window_main->hotspot(WINDOW_WIDTH/2,WINDOW_HEIGHT/2); //始终显示在鼠标处
 
     serverTimeOutput = new Fl_Input(85, 22, 185, 25, "服务器时间");
     serverTimeOutput->value("点击\"刷新\"以获取时间");
@@ -136,7 +138,7 @@ void show_about_windows() {
     constexpr int WINDOW_SIZE_Y = 300;
 
     window_main = new Fl_Double_Window(WINDOW_SIZE_X, WINDOW_SIZE_Y, "About");
-    window_main->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));
+    window_main->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));  
 
     auto textBuff = new Fl_Text_Buffer();
     auto aboutTextDisplay = new Fl_Text_Display(0,0,WINDOW_SIZE_X,190);
