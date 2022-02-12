@@ -9,21 +9,37 @@
 #include <string>
 #include <sys/timeb.h>
 #include <winsock.h>
+using namespace std;
 
 // #pragma comment(lib, "ws2_32.lib") //加载 ws2_32.dll 用于msvc
 
 constexpr auto NTP_TIMESTAMP_DELTA = 2208988800ull;
 
+class AppException {
+public:
+  string message;
+  AppException(string_view msg = "AppException") : message{msg} {}
+  string_view what() const { return message; }
+};
+
+inline void assert_throw(int expression, string error_msg) {
+  if(!expression) {
+    throw AppException(error_msg);
+  }
+}
 /*
 NTP时间戳的起点为: 1900/1/1
 C语言标准/UNIX时间戳的起点为: 1970/1/1 统一使用
 Windows API时间戳起点为: 1601/1/1
 */
 
-using namespace std;
 
 #define dbg(x) cout << #x << " = " << x << endl;
 #define show_line() cout << __FILE__ << ":" << __LINE__ << endl;
+
+
+
+
 
 /*
                +-----------+------------+-----------------------+
@@ -92,8 +108,7 @@ inline timeb ntp2timeb(uint32_t sec, uint32_t frac) {
 
 inline void printTimeB(const timeb &time) {
   if (ctime(&time.time) == NULL) {
-    cout << "Wrong time! " << time.time << " " << time.millitm << endl;
-    throw exception();
+      throw AppException("Wrong timeb format");
   }
   string timeSecString = ctime(&time.time);
   cout << timeSecString.substr(0, timeSecString.length() - 1)
@@ -102,7 +117,7 @@ inline void printTimeB(const timeb &time) {
 
 string timebToString(const timeb time) {
   tm *plocal = localtime(&time.time);
-  assert(plocal);
+  assert_throw(plocal != NULL, "Unable to convert timeb to localtime");
 
   char str[256] = "";
   sprintf(str, "%4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d:%3.3d", plocal->tm_year + 1900,
@@ -144,14 +159,21 @@ public:
         dbg(ntpServerIP);
 
         WSADATA wsaData;
-        assert(WSAStartup(MAKEWORD(2, 2), &wsaData) == 0);
+        assert_throw(
+          WSAStartup(MAKEWORD(2, 2), &wsaData) == 0,
+          "Error in WSAStartup"
+          );
         sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-        assert(sock);
+        assert_throw(sock, "Can not create socket");
 
         memset(&socketAddress, 0, sizeof(socketAddress));
         socketAddress.sin_family = AF_INET;
         socketAddress.sin_addr.s_addr = inet_addr(ntpServerIP.c_str());
         socketAddress.sin_port = htons(ntpServerPort);
+
+        int sockTimeout = 5000; // 5 sec
+        setsockopt( sock, SOL_SOCKET, SO_SNDTIMEO, ( char * )&sockTimeout, sizeof( int ) );
+        setsockopt( sock, SOL_SOCKET, SO_RCVTIMEO, ( char * )&sockTimeout, sizeof( int ) );
     }
 
   // milsecs
@@ -160,18 +182,25 @@ public:
     memset(&packet, 0, sizeof(NtpPacket));
     packet.leap_version_mode = 0x1b;
 
-    assert(connect(sock, (SOCKADDR *)&socketAddress, sizeof(SOCKADDR)) !=
-           SOCKET_ERROR);
+    assert_throw(
+      connect(sock, (SOCKADDR *)&socketAddress, sizeof(SOCKADDR)) != SOCKET_ERROR,
+      "Network Error"
+      );
 
     // --------时间敏感区开始-------
 
     timeb org;
     ftime(&org);
 
-    assert(send(sock, (const char *)&packet, sizeof(packet), 0) !=
-           SOCKET_ERROR);
+    assert_throw(
+      send(sock, (const char *)&packet, sizeof(packet), 0) != SOCKET_ERROR,
+      "Network Error"
+      );
 
-    assert(recv(sock, (char *)&packet, sizeof(packet), 0) != SOCKET_ERROR);
+    assert_throw(
+      recv(sock, (char *)&packet, sizeof(packet), 0) != SOCKET_ERROR,
+      "Network Error"
+    );
 
     timeb dst;
     ftime(&dst);

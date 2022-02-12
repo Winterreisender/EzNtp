@@ -5,6 +5,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Input.H>
+#include <FL/fl_ask.H>
 #include <FL/Fl_Text_Display.H>
 
 #include "EzNtp.h"
@@ -36,6 +37,9 @@ void btnSetServerInfoClicked(Fl_Widget* _, void* __) {
     
     ntpServerIP = inputServerIP->value();
     ntpServerPort = atoi(inputServerPort->value());
+
+    fl_beep(FL_BEEP_MESSAGE);
+    fl_message("已设置服务器为%s:%d",ntpServerIP.c_str(),ntpServerPort);
 }
 
 void btnRefreshTimeClicked(Fl_Widget* _, void* __)
@@ -45,19 +49,24 @@ void btnRefreshTimeClicked(Fl_Widget* _, void* __)
     ezNtp.ntpServerPort = ntpServerPort;
     ezNtp.initSocket();
 
-    timeb ntpTime = ezNtp.getNtpTime();
-    serverTimeOutput->value(Utils::timebToString(ntpTime).c_str());
-    ezNtp.closeSocket();
+    try {
+        timeb ntpTime = ezNtp.getNtpTime();
+        serverTimeOutput->value(Utils::timebToString(ntpTime).c_str());
+        ezNtp.closeSocket();
+    } catch(const AppException& err) {
+        fl_alert(err.message.c_str());
+        return;
+    }
 
     timeb sysTimeb;
     ftime(&sysTimeb);
     sysTimeOutput->value(Utils::timebToString(sysTimeb).c_str());
+
+    fl_beep(FL_BEEP_MESSAGE);
 }
 
 void btnSyncTimeClicked(Fl_Widget* _, void* __)
 {
-    btnSyncTime->label("同步中...");
-    btnSyncTime->deactivate();
 
     auto ezNtp = EzNtp();
     ezNtp.ntpServerIP = ntpServerIP;
@@ -67,8 +76,14 @@ void btnSyncTimeClicked(Fl_Widget* _, void* __)
     auto result = ezNtp.syncTime();
     ezNtp.closeSocket();
 
-    btnSyncTime->label(((result == 0) ? "同步成功" : "请重试"));
-    btnSyncTime->set_active();
+    if(result != 0) {
+        fl_beep(FL_BEEP_ERROR);
+        fl_alert("同步失败! 错误码为%ld\n%s",result, result==1314?"请以管理员权限运行":"");
+    }else{
+        fl_beep(FL_BEEP_MESSAGE);
+        fl_message("同步成功");
+    }
+
 }
 
 void fltk_main(int argc, char** argv)
@@ -97,6 +112,25 @@ void fltk_main(int argc, char** argv)
     window_main->show(argc, argv);
 }
 
+// use FL_ask instead
+/*
+void msgBox(string info, string title = "") {
+    constexpr int WINDOW_SIZE_X = 400;
+    constexpr int WINDOW_SIZE_Y = 300;
+
+    auto window = new Fl_Double_Window(WINDOW_SIZE_X, WINDOW_SIZE_Y, title.c_str());
+    window->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));
+
+    auto textBuff = new Fl_Text_Buffer();
+    auto aboutTextDisplay = new Fl_Text_Display(0,0,WINDOW_SIZE_X,180);
+    aboutTextDisplay->buffer(textBuff);
+    textBuff->text(info.c_str());
+
+    auto btnOK = new Fl_Button(120,265,150,25, "应用");
+    btnOK->callback((Fl_Callback*)[=window](){window->hide();}, NULL);
+}
+*/
+
 void show_about_windows() {
     constexpr int WINDOW_SIZE_X = 400;
     constexpr int WINDOW_SIZE_Y = 300;
@@ -108,7 +142,7 @@ void show_about_windows() {
     auto aboutTextDisplay = new Fl_Text_Display(0,0,WINDOW_SIZE_X,190);
     aboutTextDisplay->buffer(textBuff);
     textBuff->text(
-"EzNtp GUI v0.1.2\n"
+"EzNtp GUI v0.2.1\n"
 "简单的手动校时软件\n"
 "Copyright 2022 Winterreisender.\n"
 "Licensed under AGLP-3.0\n"
