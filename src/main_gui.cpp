@@ -124,25 +124,6 @@ void fltk_main(int argc, char** argv)
     window_main->show(argc, argv);
 }
 
-// use FL_ask instead
-/*
-void msgBox(string info, string title = "") {
-    constexpr int WINDOW_SIZE_X = 400;
-    constexpr int WINDOW_SIZE_Y = 300;
-
-    auto window = new Fl_Double_Window(WINDOW_SIZE_X, WINDOW_SIZE_Y, title.c_str());
-    window->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));
-
-    auto textBuff = new Fl_Text_Buffer();
-    auto aboutTextDisplay = new Fl_Text_Display(0,0,WINDOW_SIZE_X,180);
-    aboutTextDisplay->buffer(textBuff);
-    textBuff->text(info.c_str());
-
-    auto btnOK = new Fl_Button(120,265,150,25, "应用");
-    btnOK->callback((Fl_Callback*)[=window](){window->hide();}, NULL);
-}
-*/
-
 void show_about_windows() {
     constexpr int WINDOW_SIZE_X = 400;
     constexpr int WINDOW_SIZE_Y = 300;
@@ -154,16 +135,17 @@ void show_about_windows() {
     auto aboutTextDisplay = new Fl_Text_Display(0,0,WINDOW_SIZE_X,190);
     aboutTextDisplay->buffer(textBuff);
     textBuff->text(
-"EzNtp GUI v1.0.0-preview2 \"1096\"\n"
-"简单的手动校时软件\n"
-"Copyright 2022 Winterreisender.\n"
-"Licensed under AGPL-3.0. 本软件不提供任何担保.\n"
-"主页: https://gitee.com/winter_reisender/ez-ntp\n"
-
+"EzNtp GUI v1.0.0 \"1096\"\n"
+"主页: https://gitee.com/winter_reisender/ez-ntp\n\n"
 "常用NTP服务器IP地址\n"
 "国家授时中心: 114.118.7.163或114.118.7.161\n"
 "Apple: 17.253.114.125\n"
-"阿里云: 203.107.6.88"
+"阿里云: 203.107.6.88\n\n"
+"版权与许可声明:\n"
+"Copyright 2022 Winterreisender.\n"
+"This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, only version 3 of the License.\n"
+"This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.\n"
+"You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>."
     ); 
 
     inputServerIP = new Fl_Input(100,195,200,25, "IP地址");

@@ -30,7 +30,7 @@ mingw32-make
 
 ## 许可
 
-GNU AFFERO GENERAL PUBLIC LICENSE Version 3 (AGPL-3.0-only)
+GNU Affero General Public License Version 3 (AGPL-3.0-only)
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, only version 3 of the License.
 
