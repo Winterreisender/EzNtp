@@ -145,7 +145,11 @@ void show_about_windows() {
 "Copyright 2022 Winterreisender.\n"
 "This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, only version 3 of the License.\n"
 "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.\n"
-"You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>."
+"You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.\n"
+"本程序使用了以下开源软件\n"
+"FLTK: FLTK is provided under the terms of the GNU Library Public License, Version 2 with exceptions that allow for static linking. See https://www.fltk.org/COPYING.php\n"
+"鸣谢:\n"
+"mingw-w64: https://www.mingw-w64.org/"
     ); 
 
     inputServerIP = new Fl_Input(100,195,200,25, "IP地址");

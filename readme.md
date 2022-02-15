@@ -39,3 +39,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ![GNU AGPL Logo](https://www.gnu.org/graphics/agplv3-155x51.png)
+
+## 引用
+
+本程序使用了以下开源软件:
+
+|软件|许可|
+|---|---|
+| FLTK | [LGPL-2.0 with exceptions that allow for static linking](https://www.fltk.org/COPYING.php) |
+
