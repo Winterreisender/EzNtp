@@ -1,15 +1,18 @@
 // coding: UTF-8
 // License: AGPL-3.0
 
+#include <iostream>
+#include <windows.h>
+#include <string>
+#include <time.h>
+#include "EzNtp.h"
+
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Input.H>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Text_Display.H>
-
-#include "EzNtp.h"
-#include <time.h>
 
 using namespace std;
 
@@ -54,6 +57,7 @@ void btnRefreshTimeClicked(Fl_Widget* _, void* __)
         serverTimeOutput->value(Utils::timebToString(ntpTime).c_str());
         ezNtp.closeSocket();
     } catch(const AppException& err) {
+        fl_beep(FL_BEEP_ERROR);
         fl_alert(err.message.c_str());
         return;
     }
@@ -67,15 +71,21 @@ void btnRefreshTimeClicked(Fl_Widget* _, void* __)
 
 void btnSyncTimeClicked(Fl_Widget* _, void* __)
 {
+    DWORD result = -1;
 
-    auto ezNtp = EzNtp();
-    ezNtp.ntpServerIP = ntpServerIP;
-    ezNtp.ntpServerPort = ntpServerPort;
-    ezNtp.initSocket();
+    try {
+        auto ezNtp = EzNtp();
+        ezNtp.ntpServerIP = ntpServerIP;
+        ezNtp.ntpServerPort = ntpServerPort;
+        ezNtp.initSocket();
 
-    auto result = ezNtp.syncTime();
-    ezNtp.closeSocket();
-
+        result = ezNtp.syncTime();
+        ezNtp.closeSocket();
+    } catch(const AppException& err) {
+        fl_beep(FL_BEEP_ERROR);
+        fl_alert(err.message.c_str());
+        return;
+    }
     if(result != 0) {
         fl_beep(FL_BEEP_ERROR);
         fl_alert("同步失败! 错误码为%ld\n%s",result, result==1314?"请以管理员权限运行":"");
@@ -90,7 +100,7 @@ void fltk_main(int argc, char** argv)
 {
     constexpr int WINDOW_WIDTH = 280, WINDOW_HEIGHT = 140;
     
-    window_main = new Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "EzTimeSync");
+    window_main = new Fl_Double_Window(WINDOW_WIDTH, WINDOW_HEIGHT, "EzNtp校时");
     window_main->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));
     window_main->hotspot(WINDOW_WIDTH/2,WINDOW_HEIGHT/2); //始终显示在鼠标处
 
@@ -144,15 +154,14 @@ void show_about_windows() {
     auto aboutTextDisplay = new Fl_Text_Display(0,0,WINDOW_SIZE_X,190);
     aboutTextDisplay->buffer(textBuff);
     textBuff->text(
-"EzNtp GUI v0.2.1\n"
+"EzNtp GUI v1.0.0-preview2 \"1096\"\n"
 "简单的手动校时软件\n"
 "Copyright 2022 Winterreisender.\n"
-"Licensed under AGLP-3.0\n"
-"Homepage: https://gitee.com/winter_reisender/ez-ntp\n"
+"Licensed under AGPL-3.0. 本软件不提供任何担保.\n"
+"主页: https://gitee.com/winter_reisender/ez-ntp\n"
 
-"若同步时出现错误,请尝试以管理员身份运行并检查网络连接。\n"
 "常用NTP服务器IP地址\n"
-"国家授时中心(默认): 114.118.7.163或114.118.7.163\n"
+"国家授时中心: 114.118.7.163或114.118.7.161\n"
 "Apple: 17.253.114.125\n"
 "阿里云: 203.107.6.88"
     ); 
@@ -166,8 +175,6 @@ void show_about_windows() {
     auto btnSetServerInfo = new Fl_Button(120,265,150,25, "应用");
     btnSetServerInfo->callback((Fl_Callback*)btnSetServerInfoClicked, NULL);
 
-
-
     window_main->end();
     window_main->show(0, NULL);
 
@@ -175,6 +182,12 @@ void show_about_windows() {
 
 int main(int argc, char** argv)
 {
+//    TCHAR exeName[256];
+//    
+//    GetModuleFileName(NULL, exeName,256);
+//    dbg(exeName);
+//    HICON hIcon = ExtractIconW(GetModuleHandle(NULL),(LPCWSTR) exeName,0);
+
     Fl::scheme("gtk+");
     fltk_main(argc, argv);
     return Fl::run();

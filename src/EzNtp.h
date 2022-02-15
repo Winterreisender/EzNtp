@@ -2,16 +2,16 @@
 #pragma once
 
 #include <iostream>
-#include <exception>
-#include <windows.h>
-
-#include <assert.h>
 #include <string>
+#include <exception>
+#include <assert.h>
+
+#include <windows.h>
 #include <sys/timeb.h>
 #include <winsock.h>
 using namespace std;
 
-// #pragma comment(lib, "ws2_32.lib") //加载 ws2_32.dll 用于msvc
+// #pragma comment(lib, "ws2_32.lib") //加载 ws2_32 用于msvc
 
 constexpr auto NTP_TIMESTAMP_DELTA = 2208988800ull;
 
@@ -184,7 +184,7 @@ public:
 
     assert_throw(
       connect(sock, (SOCKADDR *)&socketAddress, sizeof(SOCKADDR)) != SOCKET_ERROR,
-      "Network Error"
+      "网络错误!\nNetwork Error!"
       );
 
     // --------时间敏感区开始-------
@@ -194,12 +194,12 @@ public:
 
     assert_throw(
       send(sock, (const char *)&packet, sizeof(packet), 0) != SOCKET_ERROR,
-      "Network Error"
+      "网络错误!\nNetwork Error!"
       );
 
     assert_throw(
       recv(sock, (char *)&packet, sizeof(packet), 0) != SOCKET_ERROR,
-      "Network Error"
+      "网络错误!\nNetwork Error!"
     );
 
     timeb dst;
@@ -255,7 +255,8 @@ public:
         localTime.time += localTime.millitm / 1000;
         localTime.millitm %= 1000;
 
-        tm t = *localtime(&localTime.time);
+        tm t;
+        localtime_s(&t,&localTime.time);
         SYSTEMTIME newSysTime;
         newSysTime.wYear = 1900 + t.tm_year, newSysTime.wMonth = 1 + t.tm_mon,
         newSysTime.wDayOfWeek = t.tm_wday, newSysTime.wDay = t.tm_mday,
