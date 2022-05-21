@@ -28,9 +28,11 @@ mingw32-make
 
     g++ -I/c/some/fltk/include -I/c/some/fltk/include/FL/images -mwindows -DWIN32 -DUSE_OPENGL32 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -o 'main' './main_gui.cpp' -mwindows /c/some/fltk/lib/libfltk.a -ldl -lole32 -luuid -lcomctl32 -lwsock32
 
-## 许可
+## 版权与许可
 
-GNU Affero General Public License Version 3 (AGPL-3.0-only)
+Copyright 2022 Winterreisender.
+
+Licensed under GNU Affero General Public License Version 3 (AGPL-3.0-only)
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, only version 3 of the License.
 

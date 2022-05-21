@@ -136,7 +136,7 @@ void show_about_windows() {
     aboutTextDisplay->buffer(textBuff);
     textBuff->text(
 "EzNtp GUI v1.0.0 \"1096\"\n"
-"主页: https://gitee.com/winter_reisender/ez-ntp\n\n"
+"详见: https://github.com/Winterreisender/EzNtp\n\n"
 "常用NTP服务器IP地址\n"
 "国家授时中心: 114.118.7.163或114.118.7.161\n"
 "Apple: 17.253.114.125\n"
@@ -146,11 +146,9 @@ void show_about_windows() {
 "This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, only version 3 of the License.\n"
 "This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.\n"
 "You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.\n"
-"本程序使用了以下开源软件\n"
-"FLTK: FLTK is provided under the terms of the GNU Library Public License, Version 2 with exceptions that allow for static linking. See https://www.fltk.org/COPYING.php\n"
-"鸣谢:\n"
-"mingw-w64: https://www.mingw-w64.org/"
-    ); 
+"EzNtp is based in part on the work of the FLTK project (https://www.fltk.org).\n"
+"FLTK is provided under the terms of the GNU Library Public License, Version 2 with exceptions that allow for static linking. See https://www.fltk.org/COPYING.php\n"
+); 
 
     inputServerIP = new Fl_Input(100,195,200,25, "IP地址");
     inputServerIP->value(ntpServerIP.c_str());
